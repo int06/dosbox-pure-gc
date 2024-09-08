@@ -9,6 +9,7 @@
 
 #if C_GAMELINK
 
+#include "shared_data.h"
 #include "gamelink_term.h"
 // External Dependencies
 #ifdef WIN32
@@ -37,9 +38,6 @@ bool g_paused = false;
 // Local Definitions
 //------------------------------------------------------------------------------
 
-#define SYSTEM_NAME		"DOSBox"
-
-#define PROTOCOL_VER		4
 
 #ifdef WIN32
 #define GAMELINK_MUTEX_NAME		"DWD_GAMELINK_MUTEX_R4"
@@ -80,54 +78,6 @@ static GameLink::sSharedMemoryMap_R4* g_p_shared_memory;
 //------------------------------------------------------------------------------
 // Local Functions
 //------------------------------------------------------------------------------
-
-static void shared_memory_init()
-{
-	// Initialise
-
-	g_p_shared_memory->version = PROTOCOL_VER;
-	g_p_shared_memory->flags = 0;
-
-	memset( g_p_shared_memory->system, 0, sizeof( g_p_shared_memory->system ) );
-	strcpy( g_p_shared_memory->system, SYSTEM_NAME );
-	memset( g_p_shared_memory->program, 0, sizeof( g_p_shared_memory->program ) );
-
-	g_p_shared_memory->program_hash[ 0 ] = 0;
-	g_p_shared_memory->program_hash[ 1 ] = 0;
-	g_p_shared_memory->program_hash[ 2 ] = 0;
-	g_p_shared_memory->program_hash[ 3 ] = 0;
-
-	// reset input
-	g_p_shared_memory->input.mouse_dx = 0;
-	g_p_shared_memory->input.mouse_dy = 0;
-
-	g_p_shared_memory->input.mouse_btn = 0;
-	for ( int i = 0; i < 8; ++i ) {
-		g_p_shared_memory->input.keyb_state[ i ] = 0;
-	}
-
-	// reset peek interface
-	g_p_shared_memory->peek.addr_count = 0;
-	memset( g_p_shared_memory->peek.addr, 0, GameLink::sSharedMMapPeek_R2::PEEK_LIMIT * sizeof( Bit32u ) );
-	memset( g_p_shared_memory->peek.data, 0, GameLink::sSharedMMapPeek_R2::PEEK_LIMIT * sizeof( Bit8u ) );
-
-	// blank frame
-	g_p_shared_memory->frame.seq = 0;
-	g_p_shared_memory->frame.image_fmt = 0; // = no frame
-	g_p_shared_memory->frame.width = 0;
-	g_p_shared_memory->frame.height = 0;
-
-	g_p_shared_memory->frame.par_x = 1;
-	g_p_shared_memory->frame.par_y = 1;
-	memset( g_p_shared_memory->frame.buffer, 0, GameLink::sSharedMMapFrame_R1::MAX_PAYLOAD );
-
-	// audio: 100%
-	g_p_shared_memory->audio.master_vol_l = 100;
-	g_p_shared_memory->audio.master_vol_r = 100;
-
-	// RAM
-	g_p_shared_memory->ram_size = g_membase_size;
-}
 
 //
 // create_mutex
@@ -408,7 +358,8 @@ Bit8u* GameLink::AllocRAM( const Bit32u size )
 	}
 
 	// Initialise
-	shared_memory_init();
+	g_p_shared_memory->Init();
+	g_p_shared_memory->ram_size = g_membase_size;
 
 	const int memory_map_size = MEMORY_MAP_CORE_SIZE + g_membase_size;
 	LOG_MSG( "GAMELINK: Initialised. Allocated %d MB of shared memory.", (memory_map_size + (1024*1024) - 1) / (1024*1024) );
@@ -468,17 +419,15 @@ void GameLink::Out( const Bit16u frame_width,
 	}
 
 	// Build flags
-	Bit8u flags;
 
 	// Tracking Only - DOSBox handles video/input as usual.
-	flags = sSharedMemoryMap_R4::FLAG_NO_FRAME;
+	auto flags = sSharedMemoryMap_R4::Flags::NO_FRAME;
 
 	// Paused?
 	if ( g_paused )
-		flags |= sSharedMemoryMap_R4::FLAG_PAUSED;
+		flags |= sSharedMemoryMap_R4::Flags::PAUSED;
 
 
-	//
 	// Send data?
 
 #ifdef WIN32
@@ -505,7 +454,7 @@ void GameLink::Out( const Bit16u frame_width,
 		{ // ========================
 
 			// Set version
-			g_p_shared_memory->version = PROTOCOL_VER;
+			g_p_shared_memory->SetProtocol();
 
 			// Set program
 			strncpy( g_p_shared_memory->program, p_program, 256 );

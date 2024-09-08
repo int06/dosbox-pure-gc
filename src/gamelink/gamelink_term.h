@@ -4,7 +4,7 @@
 
 #if C_GAMELINK
 
-#include "gamelink.h"
+#include "shared_data.h"
 
 namespace GameLink
 {

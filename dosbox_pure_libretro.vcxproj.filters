@@ -617,6 +617,15 @@
     <ClInclude Include="src\gamelink\gamelink.h">
       <Filter>src\gamelink</Filter>
     </ClInclude>
+    <ClInclude Include="src\gamelink\gamelink_term.h">
+      <Filter>src\gamelink</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamelink\shared_data.h">
+      <Filter>src\gamelink</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamelink\utils\macros.h">
+      <Filter>src\gamelink\utils</Filter>
+    </ClInclude>
     <ClInclude Include="src\gui\midi_mt32.h">
       <Filter>src\gui</Filter>
     </ClInclude>
@@ -686,6 +695,7 @@
     <Filter Include="src\dos" />
     <Filter Include="src\fpu" />
     <Filter Include="src\gamelink" />
+    <Filter Include="src\gamelink\utils" />
     <Filter Include="src\gui" />
     <Filter Include="src\hardware\mame" />
     <Filter Include="src\hardware\serialport" />
