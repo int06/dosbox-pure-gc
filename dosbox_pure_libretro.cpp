@@ -43,6 +43,12 @@
 #include <sstream>
 #include <chrono>
 
+//DWD BEGIN
+#if C_GAMELINK
+#include "src/gamelink/gamelink.h"
+#endif // C_GAMELINK
+//DWD END
+
 // RETROARCH AUDIO/VIDEO
 #ifdef GEKKO // From RetroArch/config.def.h
 #define DBP_DEFAULT_SAMPLERATE 44100.0
@@ -2011,6 +2017,23 @@ bool GFX_StartUpdate(Bit8u*& pixels, Bitu& pitch)
 	return true;
 }
 
+// DWD BEGIN
+#if C_GAMELINK
+void GFX_OutputGameLink()
+{
+	extern const char* RunningProgram;
+	extern Bit32u RunningProgramHash[4];
+
+	GameLink::Out((Bit16u)render.src.width, (Bit16u)render.src.height, render.src.ratio,
+		false,
+		RunningProgram,
+		RunningProgramHash,
+		nullptr,
+		MemBase);
+}
+#endif // C_GAMELINK
+// DWD END
+
 void GFX_EndUpdate(const Bit16u *changedLines)
 {
 	if (!changedLines) return;
@@ -2546,7 +2569,7 @@ void retro_set_video_refresh     (retro_video_refresh_t cb)      { video_cb     
 void retro_get_system_info(struct retro_system_info *info) // #1
 {
 	memset(info, 0, sizeof(*info));
-	info->library_name     = "DOSBox-pure";
+	info->library_name     = "DOSBox-pure-GC";
 	info->library_version  = "0.9.9";
 	info->need_fullpath    = true;
 	info->block_extract    = true;
@@ -3625,6 +3648,16 @@ bool retro_load_game(const struct retro_game_info *info) //#4
 		}
 	}
 
+	// DWD BEGIN
+#if C_GAMELINK
+	if (GameLink::Init() != 1)
+	{
+		retro_notify(0, RETRO_LOG_ERROR, "GAMELINK initialisation failed.\n");
+		return false;
+	}
+#endif // C_GAMELINK
+	// DWD END
+
 	//// RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK crashes RetroArch with the XAudio driver when launching from the command line
 	//// Also it explicitly doesn't support save state rewinding when used so give up on this for now.
 	//struct CallBacks
@@ -3686,6 +3719,12 @@ void retro_get_system_av_info(struct retro_system_av_info *info) // #5
 void retro_unload_game(void)
 {
 	DBP_Shutdown();
+
+	// DWD BEGIN
+#if C_GAMELINK
+	GameLink::Term();
+#endif // C_GAMELINK
+	// DWD END
 }
 
 void retro_set_controller_port_device(unsigned port, unsigned device) //#5

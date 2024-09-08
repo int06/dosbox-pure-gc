@@ -91,6 +91,11 @@
 #define C_DBP_ENABLE_LIBRETRO_IPX
 #define C_DBP_ENABLE_LIBRETRO_NE2K
 
+// DWD BEGIN
+/* Define to 1 to enable gamelink support */
+#define C_GAMELINK 1
+// DWD END
+
 // ----- DBP ASSERT MACRO
 #ifdef NDEBUG
 #define DBP_ASSERT(cond)
@@ -177,7 +182,7 @@ void GFX_ShowMsg(char const* format,...);
 ///////////////////
 
 /* Version number of package */
-#define VERSION "pure-libretro"
+#define VERSION "pure-gc-libretro"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
