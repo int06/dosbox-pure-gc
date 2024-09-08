@@ -11,9 +11,13 @@
 
 #include "shared_data.h"
 #include "gamelink_term.h"
+
+#include <algorithm>
+
 // External Dependencies
 #ifdef WIN32
 #include <Windows.h>
+#undef min
 #else // WIN32
 #include <sys/mman.h>
 #include <sys/file.h>
@@ -183,10 +187,8 @@ static void destroy_mutex( const char* p_name )
 //
 // \returns 1 if we made one, 0 if it failed.
 //
-static int create_shared_memory()
+static int create_shared_memory(size_t memory_map_size)
 {
-	const int memory_map_size = MEMORY_MAP_CORE_SIZE + g_membase_size;
-
 #ifdef WIN32
 
 	g_mmap_handle = CreateFileMappingA( INVALID_HANDLE_VALUE, NULL,
@@ -310,11 +312,9 @@ static void destroy_shared_memory()
 //------------------------------------------------------------------------------
 // GameLink::Init
 //------------------------------------------------------------------------------
-int GameLink::Init()
+bool GameLink::Init()
 {
 	LOG_MSG("GameLink::Init");
-
-	int iresult;
 
 	// Already initialised?
 	if ( g_mutex_handle )
@@ -322,19 +322,19 @@ int GameLink::Init()
 		LOG_MSG( "GAMELINK: Ignoring re-initialisation." );
 
 		// success
-		return 1;
+		return true;
 	}
 
 	// Create a fresh mutex.
-	iresult = create_mutex( GAMELINK_MUTEX_NAME );
+	int iresult = create_mutex( GAMELINK_MUTEX_NAME );
 	if ( iresult != 1 )
 	{
 		// failed.
 		LOG_MSG("GAMELINK: Couldn't initialise inter-process communication.");
-		return 0;
+		return false;
 	}
 
-	return 1;
+	return true;
 }
 
 //------------------------------------------------------------------------------
@@ -344,12 +344,12 @@ Bit8u* GameLink::AllocRAM( const Bit32u size )
 {
 	LOG_MSG("GameLink::AllocRAM(%d)", size);
 
-	int iresult;
-
 	g_membase_size = size;
 
+	const size_t memory_map_size = MEMORY_MAP_CORE_SIZE + g_membase_size;
+
 	// Create a shared memory area.
-	iresult = create_shared_memory();
+	int iresult = create_shared_memory(memory_map_size);
 	if ( iresult != 1 )
 	{
 		destroy_mutex( GAMELINK_MUTEX_NAME );
@@ -361,7 +361,6 @@ Bit8u* GameLink::AllocRAM( const Bit32u size )
 	g_p_shared_memory->Init();
 	g_p_shared_memory->ram_size = g_membase_size;
 
-	const int memory_map_size = MEMORY_MAP_CORE_SIZE + g_membase_size;
 	LOG_MSG( "GAMELINK: Initialised. Allocated %d MB of shared memory.", (memory_map_size + (1024*1024) - 1) / (1024*1024) );
 
 	Bit8u* membase = ((Bit8u*)g_p_shared_memory) + MEMORY_MAP_CORE_SIZE;
@@ -391,31 +390,11 @@ void GameLink::Term()
 //------------------------------------------------------------------------------
 // GameLink::Out
 //------------------------------------------------------------------------------
-void GameLink::Out( const Bit16u frame_width,
-					const Bit16u frame_height,
-					const double source_ratio,
-					const bool want_mouse,
-					const char* p_program,
-					const Bit32u* p_program_hash,
-					const Bit8u* p_frame,
-					const Bit8u* p_sysmem )
+void GameLink::Out(const char* p_program, const Bit32u* p_program_hash, const Bit8u* p_sysmem)
 {
 	// Not initialised (or disabled) ?
 	if ( g_p_shared_memory == NULL ) {
 		return; // <=== EARLY OUT
-	}
-
-	// Create integer ratio
-	Bit16u par_x, par_y;
-	if ( source_ratio >= 1.0 )
-	{
-		par_x = 4096;
-		par_y = static_cast< Bit16u >( source_ratio * 4096.0 );
-	}
-	else
-	{
-		par_x = static_cast< Bit16u >( 4096.0 / source_ratio );
-		par_y = 4096;
 	}
 
 	// Build flags
@@ -467,10 +446,7 @@ void GameLink::Out( const Bit16u frame_width,
 			g_p_shared_memory->flags = flags;
 
 			// Peek
-			for ( Bit32u pindex = 0;
-					pindex < g_p_shared_memory->peek.addr_count &&
-					pindex < sSharedMMapPeek_R2::PEEK_LIMIT;
-				++pindex )
+			for ( Bit32u pindex = 0; std::min(g_p_shared_memory->peek.addr_count, sSharedMMapPeek_R2::PEEK_LIMIT); ++pindex )
 			{
 				// read address
 				Bit32u address = g_p_shared_memory->peek.addr[ pindex ];

@@ -2023,13 +2023,7 @@ void GFX_OutputGameLink()
 {
 	extern const char* RunningProgram;
 	extern Bit32u RunningProgramHash[4];
-
-	GameLink::Out((Bit16u)render.src.width, (Bit16u)render.src.height, render.src.ratio,
-		false,
-		RunningProgram,
-		RunningProgramHash,
-		nullptr,
-		MemBase);
+	GameLink::Out(RunningProgram, RunningProgramHash, MemBase);
 }
 #endif // C_GAMELINK
 // DWD END

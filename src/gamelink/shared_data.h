@@ -1,7 +1,7 @@
 #pragma once
 
 #include "dosbox.h"
-#include "helpers.h"
+#include "utils/macros.h"
 
 #include <string.h>
 #include <type_traits>
@@ -163,7 +163,7 @@ namespace GameLink
 		void Init() 
 		{
 			SetProtocol();
-			flags = 0;
+			flags = static_cast<Flags>(0);
 
 			memset(system, 0, sizeof(system));
 			strcpy(system, "DOSBox");
@@ -196,6 +196,7 @@ namespace GameLink
 	inline sSharedMemoryMap_R4::Flags& operator|=(sSharedMemoryMap_R4::Flags& f1, sSharedMemoryMap_R4::Flags f2)
 	{
 		f1 = f1 | f2;
+		return f1;
 	}
 
 }; // namespace GameLink
