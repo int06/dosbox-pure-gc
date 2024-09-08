@@ -26,6 +26,12 @@
 
 #include <string.h>
 
+ // DWD BEGIN
+#if C_GAMELINK
+#include "../gamelink/gamelink.h"
+#endif // C_GAMELINK
+// DWD END
+
 #define PAGES_IN_BLOCK	((1024*1024)/MEM_PAGE_SIZE)
 #ifndef C_DBP_LIBRETRO
 #define SAFE_MEMORY	32
@@ -586,7 +592,15 @@ public:
 			LOG_MSG("Stick with the default values unless you are absolutely certain.");
 		}
 #endif
+
+		// DWD BEGIN
+#if C_GAMELINK
+		MemBase = GameLink::AllocRAM( memsize * 1024 * 1024 ); 
+#else // C_GAMELINK
 		MemBase = new(std::nothrow) Bit8u[memsize*1024*1024];
+#endif // C_GAMELINK
+		// DWD END
+
 		if (!MemBase) E_Exit("Can't allocate main memory of %" sBitfs(d) " MB",memsize);
 		/* Clear the memory, as new doesn't always give zeroed memory
 		 * (Visual C debug mode). We want zeroed memory though. */
@@ -622,7 +636,12 @@ public:
 		MEM_A20_Enable(false);
 	}
 	~MEMORY(){
-		delete [] MemBase;
+		// DWD BEGIN
+#if !C_GAMELINK
+		delete[] MemBase;
+#endif // C_GAMELINK
+		// DWD END
+
 		delete [] memory.phandlers;
 		delete [] memory.mhandles;
 	}

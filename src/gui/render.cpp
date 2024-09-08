@@ -246,6 +246,13 @@ void RENDER_EndUpdate( bool abort ) {
 			flags, fps, (Bit8u *)&scalerSourceCache, (Bit8u*)&render.pal.rgb );
 	}
 #endif
+
+	// DWD BEGIN
+#if C_GAMELINK
+	GFX_OutputGameLink();
+#endif // C_GAMELINK
+	// DWD END
+
 	if ( render.scale.outWrite ) {
 #ifndef C_DBP_ENABLE_SCALERCACHE
 		GFX_EndUpdate( abort? NULL : (const Bit16u*)(size_t)1 );

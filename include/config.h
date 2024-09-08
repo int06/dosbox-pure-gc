@@ -176,7 +176,7 @@
 ///////////////////
 
 /* Version number of package */
-#define VERSION "pure-libretro"
+#define VERSION "pure-gc-libretro"
 
 /* Define WORDS_BIGENDIAN to 1 if your processor stores words with the most
    significant byte first (like Motorola and SPARC, unlike Intel). */
@@ -257,3 +257,8 @@ typedef intptr_t Bits;
 #else
 #error "Can't determine pointer size"
 #endif
+
+// DWD BEGIN
+/* Define to 1 to enable gamelink support */
+#define C_GAMELINK 1
+// DWD END
