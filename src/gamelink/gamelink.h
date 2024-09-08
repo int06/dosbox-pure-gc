@@ -160,14 +160,6 @@ namespace GameLink
 					 const Bit8u* p_frame,
 					 const Bit8u* p_sysmem );
 
-	extern void ExecTerminal( sSharedMMapBuffer_R1* p_inbuf,
-							  sSharedMMapBuffer_R1* p_outbuf,
-							  sSharedMMapBuffer_R1* p_mechbuf );
-
-	extern void ExecTerminalMech( sSharedMMapBuffer_R1* p_mechbuf );
-
-	extern void InitTerminal();
-
 }; // namespace GameLink
 
 //==============================================================================

@@ -9,6 +9,7 @@
 
 #if C_GAMELINK
 
+#include "gamelink_term.h"
 // External Dependencies
 #ifdef WIN32
 #include <Windows.h>
@@ -409,8 +410,6 @@ Bit8u* GameLink::AllocRAM( const Bit32u size )
 	// Initialise
 	shared_memory_init();
 
-	GameLink::InitTerminal();
-
 	const int memory_map_size = MEMORY_MAP_CORE_SIZE + g_membase_size;
 	LOG_MSG( "GAMELINK: Initialised. Allocated %d MB of shared memory.", (memory_map_size + (1024*1024) - 1) / (1024*1024) );
 
@@ -482,10 +481,6 @@ void GameLink::Out( const Bit16u frame_width,
 	//
 	// Send data?
 
-	// Message buffer
-	sSharedMMapBuffer_R1 proc_mech_buffer;
-	proc_mech_buffer.payload = 0;
-
 #ifdef WIN32
 
 	DWORD mutex_result;
@@ -544,9 +539,7 @@ void GameLink::Out( const Bit16u frame_width,
 			}
 
 			// Message Processing.
-			ExecTerminal( &(g_p_shared_memory->buf_recv),
-						  &(g_p_shared_memory->buf_tohost),
-						  &(proc_mech_buffer) );
+			ExecTerminal(&(g_p_shared_memory->buf_recv), &(g_p_shared_memory->buf_tohost));
 
 		} // ========================
 
@@ -564,10 +557,6 @@ void GameLink::Out( const Bit16u frame_width,
 		}
 
 #endif // WIN32
-
-		// Mechanical Message Processing, out of mutex.
-		if ( proc_mech_buffer.payload )
-			ExecTerminalMech( &proc_mech_buffer );
 	}
 
 }
