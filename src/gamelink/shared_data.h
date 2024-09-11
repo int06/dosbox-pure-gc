@@ -126,6 +126,30 @@ namespace GameLink
 		}
 	};
 
+	struct sSharedMemoryMapProgHash_R4 {
+		Bit32u head_checksum;
+		Bit32u total_size;
+		Bit32u total_checksum;
+		Bit32u reserved;
+
+		void Init() {
+			head_checksum = 0;
+			total_size = 0;
+			total_checksum = 0;
+			reserved = 0;
+		}
+
+		sSharedMemoryMapProgHash_R4& operator=(const ProgramHash& program_hash)
+		{
+			head_checksum = program_hash.head_checksum;
+			total_checksum = program_hash.total_checksum;
+			total_size = program_hash.total_size;
+			reserved = 0;
+
+			return *this;
+		}
+	};
+
 	//
 	// sSharedMemoryMap_R4
 	//
@@ -149,29 +173,7 @@ namespace GameLink
 		Flags flags;
 		char system[SYSTEM_MAXLEN];		// System name.
 		char program[PROGRAM_MAXLEN];	// Program name. Zero terminated.
-		struct {
-			Bit32u head_checksum;
-			Bit32u total_size;
-			Bit32u total_checksum;
-			Bit32u reserved;
-
-			void Init() {
-				head_checksum	= 0;
-				total_size		= 0;
-				total_checksum	= 0;
-				reserved		= 0;
-			}
-
-			auto& operator=(const ProgramHash& program_hash)
-			{
-				head_checksum	= program_hash.head_checksum;
-				total_checksum	= program_hash.total_checksum;
-				total_size		= program_hash.total_size;
-				reserved		= 0;
-
-				return *this;
-			}
-		} program_hash;
+		sSharedMemoryMapProgHash_R4 program_hash;
 
 		sSharedMMapFrame_R1 frame;
 		sSharedMMapInput_R2 input;
