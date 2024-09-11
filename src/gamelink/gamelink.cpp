@@ -13,7 +13,7 @@
 #include "platform/windows/mutex.h"
 #include "platform/windows/shared_memory.h"
 
-#elif defined(__unix__)
+#elif defined(__unix__) || defined(MACOSX)
 
 #include "platform/posix/mutex.h"
 #include "platform/posix/shared_memory.h"
