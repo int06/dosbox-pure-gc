@@ -2,15 +2,17 @@
 
 #include "dosbox.h"
 
+#include "program_hash.h"
+
 namespace GameLink
 {
 
-	bool Init();
+bool Init();
 	
-	Bit8u* AllocRAM(const Bit32u size);
+Bit8u* AllocRAM(const Bit32u size);
 
-	void Term();
+void Term();
 
-	void Out(const char* p_program, const Bit32u* p_program_hash, const Bit8u* p_sysmem);
+void Out(const char* program_name, const ProgramHash& program_hash, const Bit8u* sysmem_ptr);
 
 }; // namespace GameLink

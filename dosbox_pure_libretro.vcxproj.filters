@@ -620,11 +620,26 @@
     <ClInclude Include="src\gamelink\gamelink_term.h">
       <Filter>src\gamelink</Filter>
     </ClInclude>
+    <ClInclude Include="src\gamelink\platform\posix\mutex.h">
+      <Filter>src\gamelink\platform\posix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamelink\platform\posix\shared_memory.h">
+      <Filter>src\gamelink\platform\posix</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamelink\platform\windows\mutex.h">
+      <Filter>src\gamelink\platform\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamelink\platform\windows\shared_memory.h">
+      <Filter>src\gamelink\platform\windows</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gamelink\program_hash.h">
+      <Filter>src\gamelink</Filter>
+    </ClInclude>
     <ClInclude Include="src\gamelink\shared_data.h">
       <Filter>src\gamelink</Filter>
     </ClInclude>
-    <ClInclude Include="src\gamelink\utils\macros.h">
-      <Filter>src\gamelink\utils</Filter>
+    <ClInclude Include="src\gamelink\utils.h">
+      <Filter>src\gamelink</Filter>
     </ClInclude>
     <ClInclude Include="src\gui\midi_mt32.h">
       <Filter>src\gui</Filter>
@@ -695,7 +710,9 @@
     <Filter Include="src\dos" />
     <Filter Include="src\fpu" />
     <Filter Include="src\gamelink" />
-    <Filter Include="src\gamelink\utils" />
+    <Filter Include="src\gamelink\platform" />
+    <Filter Include="src\gamelink\platform\posix" />
+    <Filter Include="src\gamelink\platform\windows" />
     <Filter Include="src\gui" />
     <Filter Include="src\hardware\mame" />
     <Filter Include="src\hardware\serialport" />

@@ -43,11 +43,9 @@
 #include <sstream>
 #include <chrono>
 
-//DWD BEGIN
 #if C_GAMELINK
 #include "src/gamelink/gamelink.h"
 #endif // C_GAMELINK
-//DWD END
 
 // RETROARCH AUDIO/VIDEO
 #ifdef GEKKO // From RetroArch/config.def.h
@@ -2017,16 +2015,14 @@ bool GFX_StartUpdate(Bit8u*& pixels, Bitu& pitch)
 	return true;
 }
 
-// DWD BEGIN
 #if C_GAMELINK
 void GFX_OutputGameLink()
 {
 	extern const char* RunningProgram;
-	extern Bit32u RunningProgramHash[4];
+	extern GameLink::ProgramHash RunningProgramHash;
 	GameLink::Out(RunningProgram, RunningProgramHash, MemBase);
 }
 #endif // C_GAMELINK
-// DWD END
 
 void GFX_EndUpdate(const Bit16u *changedLines)
 {
@@ -3642,7 +3638,6 @@ bool retro_load_game(const struct retro_game_info *info) //#4
 		}
 	}
 
-	// DWD BEGIN
 #if C_GAMELINK
 	if (GameLink::Init() != 1)
 	{
@@ -3650,7 +3645,6 @@ bool retro_load_game(const struct retro_game_info *info) //#4
 		return false;
 	}
 #endif // C_GAMELINK
-	// DWD END
 
 	//// RETRO_ENVIRONMENT_SET_AUDIO_CALLBACK crashes RetroArch with the XAudio driver when launching from the command line
 	//// Also it explicitly doesn't support save state rewinding when used so give up on this for now.
@@ -3714,11 +3708,9 @@ void retro_unload_game(void)
 {
 	DBP_Shutdown();
 
-	// DWD BEGIN
 #if C_GAMELINK
 	GameLink::Term();
 #endif // C_GAMELINK
-	// DWD END
 }
 
 void retro_set_controller_port_device(unsigned port, unsigned device) //#5

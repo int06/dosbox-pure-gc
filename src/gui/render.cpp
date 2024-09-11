@@ -247,11 +247,9 @@ void RENDER_EndUpdate( bool abort ) {
 	}
 #endif
 
-	// DWD BEGIN
 #if C_GAMELINK
 	GFX_OutputGameLink();
 #endif // C_GAMELINK
-	// DWD END
 
 	if ( render.scale.outWrite ) {
 #ifndef C_DBP_ENABLE_SCALERCACHE

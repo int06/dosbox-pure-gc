@@ -1,7 +1,8 @@
 #pragma once
 
 #include "dosbox.h"
-#include "utils/macros.h"
+#include "program_hash.h"
+#include "utils.h"
 
 #include <string.h>
 #include <type_traits>
@@ -148,7 +149,29 @@ namespace GameLink
 		Flags flags;
 		char system[SYSTEM_MAXLEN];		// System name.
 		char program[PROGRAM_MAXLEN];	// Program name. Zero terminated.
-		Bit32u program_hash[4];			// Program code hash (256-bits)
+		struct {
+			Bit32u head_checksum;
+			Bit32u total_size;
+			Bit32u total_checksum;
+			Bit32u reserved;
+
+			void Init() {
+				head_checksum	= 0;
+				total_size		= 0;
+				total_checksum	= 0;
+				reserved		= 0;
+			}
+
+			auto& operator=(const ProgramHash& program_hash)
+			{
+				head_checksum	= program_hash.head_checksum;
+				total_checksum	= program_hash.total_checksum;
+				total_size		= program_hash.total_size;
+				reserved		= 0;
+
+				return *this;
+			}
+		} program_hash;
 
 		sSharedMMapFrame_R1 frame;
 		sSharedMMapInput_R2 input;
@@ -160,23 +183,24 @@ namespace GameLink
 		// added for protocol v4
 		Bit32u ram_size;
 
-		void Init() 
+		void Init(Bit32u ram_size_)
 		{
 			SetProtocol();
 			flags = static_cast<Flags>(0);
 
 			memset(system, 0, sizeof(system));
 			strcpy(system, "DOSBox");
+
 			memset(program, 0, sizeof(program));
 
-			for (auto i = 0; i < COUNTOF(program_hash); ++i) {
-				program_hash[i] = 0;
-			}
+			program_hash.Init();
 
 			input.Init();
 			peek.Init();
 			frame.Init();
 			audio.Init();
+
+			ram_size = ram_size_;
 		}
 
 		void SetProtocol() {
