@@ -44,7 +44,7 @@ public:
 		return true;
 	}
 
-	bool Cleanup()
+	void Cleanup()
 	{
 		if (handle != nullptr) {
 			sem_close(handle);

@@ -70,7 +70,7 @@ public:
 	{
 		if (ptr != nullptr)
 		{
-			unmap(ptr, sz);
+			munmap(ptr, sz);
 			ptr = nullptr;
 			sz = 0;
 
